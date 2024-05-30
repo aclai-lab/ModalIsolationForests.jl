@@ -1,6 +1,4 @@
-using ModalIsolationForest
 using Test
+using ModalIsolationForest
 
-@testset "ModalIsolationForest.jl" begin
-    # Write your tests here.
-end
+include("test_core.jl")

@@ -1,5 +1,7 @@
 module ModalIsolationForest
 
-# Write your package code here.
+# Import functionalities
+include("core.jl")
 
+# Export functionalities
 end
