@@ -14,7 +14,7 @@ function build_mif_tree(data::Matrix{Float64}, current_height::Int, max_height::
         return MIFNode(Formula(), nothing, nothing, size(data, 1))  # Leaf node
     end
     split_formula = ModalIsolationForest.generate_random_modal_formula()  # Use existing utilities
-    
+
     left_indices = data .|> (x -> ModalIsolationForest.evaluate_formula(split_formula, x))
     right_indices = .~left_indices
 
@@ -23,3 +23,5 @@ function build_mif_tree(data::Matrix{Float64}, current_height::Int, max_height::
 
     MIFNode(split_formula, left_child, right_child, size(data, 1))
 end
+
+export MIFNode, MIFTree, build_mif_tree

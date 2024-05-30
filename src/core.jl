@@ -3,7 +3,17 @@ using SoleLogics
 export calculate_c, generate_random_modal_formula, evaluate_formula
 
 # Utility function to calculate c(n)
-calculate_c(n::Int)::Float64 = 2 * (log(n - 1) + 0.5772156649) - (2 * (n - 1) / n)
+function calculate_c(n::Int)::Float64
+    if n > 2
+        c_n = 2 * log(n - 1) + Base.MathConstants.eulergamma - 2 * (n - 1) / n
+    elseif n == 1
+        c_n = 1
+    else # TODO: is this really necessary?
+        c_n = 0
+    end
+
+    return c_n
+end
 
 # Utility function to generate random modal formulas
 generate_random_modal_formula() = randformula()  # Function call from SoleLogics
