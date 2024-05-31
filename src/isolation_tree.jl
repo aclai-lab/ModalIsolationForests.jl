@@ -21,7 +21,7 @@ function build_mif_tree(data::Matrix{Float64}, current_height::Int, max_height::
     left_child = build_mif_tree(data[left_indices, :], current_height + 1, max_height)
     right_child = build_mif_tree(data[right_indices, :], current_height + 1, max_height)
 
-    MIFNode(split_formula, left_child, right_child, size(data, 1))
+    return MIFNode(split_formula, left_child, right_child, size(data, 1))
 end
 
 export MIFNode, MIFTree, build_mif_tree

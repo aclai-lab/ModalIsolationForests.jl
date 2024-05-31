@@ -6,7 +6,7 @@ end
 
 function build_mif_forest(data::Matrix{Float64}, num_trees::Int, max_height::Int, sample_size::Int)::MIFForest
     trees = [ModalIsolationForest.MIFTree(build_mif_tree(sample(data, sample_size, replace=false), 0, max_height)) for _ in 1:num_trees]
-    MIFForest(trees)
+    return MIFForest(trees)
 end
 
 function detect_mif_anomalies(forest::MIFForest, data::Matrix{Float64}, sample_size::Int)::Vector{Float64}
@@ -16,7 +16,7 @@ function detect_mif_anomalies(forest::MIFForest, data::Matrix{Float64}, sample_s
         avg_path_length = mean([path_length(tree.root, data[i, :]) for tree in forest.trees])
         scores[i] = 2^(-avg_path_length / c_n)  # Calculate the anomaly score
     end
-    scores
+    return scores
 end
 
 function path_length(node::ModalIsolationForest.MIFNode, point::Vector{Float64}, current_length::Int = 0)::Float64
@@ -29,5 +29,9 @@ function path_length(node::ModalIsolationForest.MIFNode, point::Vector{Float64},
         return path_length(node.right, point, current_length + 1)
     end
 end
+
+# TODO: Shall we use this function in `path_length` for better readability?
+function average_path_length(forest::MIFForest, point::Vector{Float64})::Float64
+    return mean([path_length(tree.root, point) for tree in forest.trees])
 
 export MIFForest, build_mif_forest, detect_mif_anomalies, path_length
