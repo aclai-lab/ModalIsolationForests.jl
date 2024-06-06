@@ -5,7 +5,7 @@ mutable struct MIFForest
 end
 
 function build_mif_forest(data::Matrix{Float64}, num_trees::Int, max_height::Int, sample_size::Int)::MIFForest
-    trees = [ModalIsolationForest.MIFTree(build_mif_tree(sample(data, sample_size, replace=false), 0, max_height)) for _ in 1:num_trees]
+    trees = [ModalIsolationForest.MIFTree(build_mif_tree(data[rand(1:size(data, 1), sample_size), :], max_height)) for _ in 1:num_trees]
     return MIFForest(trees)
 end
 
@@ -33,5 +33,4 @@ end
 # TODO: Shall we use this function in `path_length` for better readability?
 function average_path_length(forest::MIFForest, point::Vector{Float64})::Float64
     return mean([path_length(tree.root, point) for tree in forest.trees])
-
-export MIFForest, build_mif_forest, detect_mif_anomalies, path_length
+end
