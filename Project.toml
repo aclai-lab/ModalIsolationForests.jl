@@ -4,11 +4,16 @@ authors = ["Eduard I. STAN", "Giovanni PAGLIARINI"]
 version = "1.0.0-DEV"
 
 [deps]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+MultiData = "8cc5100c-b3d1-4f82-90cb-0ea93d317aba"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Sole = "7b3b3b3f-8b15-4a80-a798-b383498bc2cf"
+SoleBase = "4475fa32-7023-44a0-aa70-4813b230e492"
 SoleData = "123f1ae1-6307-4526-ab5b-aab3a92a2b8c"
 SoleLogics = "b002da8f-3cb3-4d91-bbe3-2953433912b5"
 SoleModels = "4249d9c7-3290-4ddd-961c-e1d3ec2467f8"
+Tables = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
 
 [compat]
 julia = "1.8"

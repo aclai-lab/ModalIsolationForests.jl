@@ -1,6 +1,17 @@
 module ModalIsolationForest
 
-export calculate_c, evaluate_formula
+using Tables
+
+using SoleLogics
+using SoleLogics: AbstractInterpretation
+
+using SoleData
+using SoleData: AbstractLogiset, PropositionalLogiset, gettable
+
+using LinearAlgebra
+
+
+export calculate_c
 
 # Import functionalities
 include("core.jl")
