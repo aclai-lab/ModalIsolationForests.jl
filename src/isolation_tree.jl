@@ -36,7 +36,7 @@ function _build_mif_tree(
             n[null_idxs] .= 0
             p = (rand(nvariables) .* (maxs.-mins)) .+ mins
             
-            features = SoleData.UnivariateValue.(1:nvariables)
+            features = SoleData.VariableValue.(1:nvariables)
             Atom(SoleData.ObliqueScalarCondition(features, p, n, <))
         else
             error("TODO implement.")
