@@ -1,4 +1,4 @@
-module ModalIsolationForest
+module ModalIsolationForests
 
 using Tables
 

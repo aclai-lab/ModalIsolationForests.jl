@@ -1,5 +1,5 @@
 using Test
-using ModalIsolationForest
+using ModalIsolationForests
 
 function run_tests(list)
   println("\n" * ("#"^50))

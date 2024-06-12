@@ -1,4 +1,4 @@
-name = "ModalIsolationForest"
+name = "ModalIsolationForests"
 uuid = "d0fc4cbc-50a4-4382-9dfb-5921de651e35"
 authors = ["Eduard I. STAN", "Giovanni PAGLIARINI"]
 version = "1.0.0-DEV"

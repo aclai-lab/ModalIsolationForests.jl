@@ -4,11 +4,11 @@ using Random
 
 
 mutable struct MIFForest
-    trees::Vector{ModalIsolationForest.MIFTree}
+    trees::Vector{ModalIsolationForests.MIFTree}
 end
 
 function build_mif_forest(X::PropositionalLogiset, num_trees::Int, max_height::Int, sample_size::Int)::MIFForest
-    trees = [ModalIsolationForest.MIFTree(build_mif_tree(slicedataset(X, rand(1:ninstances(X), sample_size)), max_height)) for _ in 1:num_trees]
+    trees = [ModalIsolationForests.MIFTree(build_mif_tree(slicedataset(X, rand(1:ninstances(X), sample_size)), max_height)) for _ in 1:num_trees]
     return MIFForest(trees)
 end
 
@@ -21,7 +21,7 @@ function detect_mif_anomalies(forest::MIFForest, X::PropositionalLogiset, sample
     return scores
 end
 
-function path_length(node::ModalIsolationForest.MIFNode, point::AbstractInterpretation, current_length::Int = 0)::Float64
+function path_length(node::ModalIsolationForests.MIFNode, point::AbstractInterpretation, current_length::Int = 0)::Float64
 if node.left == nothing || node.right == nothing
         return current_length + calculate_c(node.size)  # Correctly use the sample size at the node
     end

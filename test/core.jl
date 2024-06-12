@@ -1,4 +1,4 @@
 using Test
-using ModalIsolationForest
+using ModalIsolationForests
 
-@test ModalIsolationForest.calculate_c(10) ≈ 3.171664819573972  # Example test for c(n) calculation
+@test ModalIsolationForests.calculate_c(10) ≈ 3.171664819573972  # Example test for c(n) calculation
