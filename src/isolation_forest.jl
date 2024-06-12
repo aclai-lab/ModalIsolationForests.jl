@@ -1,3 +1,4 @@
+using SoleBase
 using SoleLogics
 using SoleLogics: AbstractInterpretation
 using Random
@@ -16,10 +17,13 @@ function build_isolation_forest(
     tree_kwargs...,
 )::MIFForest
     sample_size = partial_sampling isa Int ? partial_sampling : floor(Int, ninstances(X) * partial_sampling)
-    trees = [begin
-        subX = slicedataset(X, rand(rng, 1:ninstances(X), sample_size))
-            ModalIsolationForests.MIFTree(build_isolation_tree(subX; rng = rng, tree_kwargs...))
-    end for _ in 1:n_trees]
+    trees = Vector{ModalIsolationForests.MIFTree}(undef, n_trees)
+    rngs = [SoleBase.spawn(rng) for i_tree in 1:n_trees]
+    Threads.@threads for i_tree in 1:n_trees
+        subX = slicedataset(X, rand(rng, 1:ninstances(X), sample_size); return_view=true)
+        this_rng = rngs[i_tree]
+        trees[i_tree] = ModalIsolationForests.MIFTree(build_isolation_tree(subX; rng = this_rng, tree_kwargs...))
+    end
     return MIFForest(trees, sample_size)
 end
 

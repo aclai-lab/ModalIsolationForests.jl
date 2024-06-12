@@ -69,6 +69,7 @@ function build_isolation_tree(
     obliqueness_extension = 3,
     rng::AbstractRNG = Random.GLOBAL_RNG,
     operators = [∨, ∧, ¬],
+    max_n_attempts::Union{Nothing,Int} = nothing,
 )::MIFNode
     if (!isnothing(max_height) && current_height >= max_height) || ninstances(X) <= 1
         return MIFNode(nothing, nothing, nothing, ninstances(X))  # Leaf node
@@ -80,24 +81,33 @@ function build_isolation_tree(
         obliqueness_extension = obliqueness_extension,
         rng = rng,
         operators = operators,
+        max_n_attempts = max_n_attempts,
     )
     
-    split_formula = begin
-        if formula_max_height == 0
-            cond = random_oblique_condition(rng, X, obliqueness_extension)
-            Atom(cond)
-        else
-            # conds = random_oblique_conditions(rng, numconditions, X, obliqueness_extension)
-            # Sole.randformula(rng, formula_max_height, Atom.(conds), operators)
-            Sole.randformula(rng, formula_max_height, Atom[], operators; atompicker = (rng, alphabet)->Atom(random_oblique_condition(rng, X, obliqueness_extension)))
+    split_formula = nothing
+    left_indices = nothing
+    n_attempts = 0
+    while true
+        split_formula = begin
+            if formula_max_height == 0
+                cond = random_oblique_condition(rng, X, obliqueness_extension)
+                Atom(cond)
+            else
+                # conds = random_oblique_conditions(rng, numconditions, X, obliqueness_extension)
+                # Sole.randformula(rng, formula_max_height, Atom.(conds), operators)
+                Sole.randformula(rng, formula_max_height, Atom[], operators; atompicker = (rng, alphabet)->Atom(random_oblique_condition(rng, X, obliqueness_extension)))
+            end
+        end
+        left_indices = SoleLogics.check(split_formula, X)
+        n_attempts += 1
+        if !(sum(left_indices) in [0, ninstances(X)]) || (!isnothing(max_n_attempts) && n_attempts >= max_n_attempts)
+            break
         end
     end
-    left_indices = SoleLogics.check(split_formula, X)
-
+    
     right_indices = (~).(left_indices)
-
-    left_child = build_isolation_tree(slicedataset(X, left_indices; allow_no_instances = true), current_height + 1; kwargs...)
-    right_child = build_isolation_tree(slicedataset(X, right_indices; allow_no_instances = true), current_height + 1; kwargs...)
+    left_child  = build_isolation_tree(slicedataset(X, left_indices;  allow_no_instances=true), current_height + 1; kwargs...)
+    right_child = build_isolation_tree(slicedataset(X, right_indices; allow_no_instances=true), current_height + 1; kwargs...)
 
     return MIFNode(split_formula, left_child, right_child, ninstances(X))
 end
