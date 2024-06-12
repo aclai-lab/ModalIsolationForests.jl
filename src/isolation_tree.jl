@@ -100,7 +100,7 @@ function build_isolation_tree(
         end
         left_indices = SoleLogics.check(split_formula, X)
         n_attempts += 1
-        if !(sum(left_indices) in [0, ninstances(X)]) || (!isnothing(max_n_attempts) && n_attempts >= max_n_attempts)
+        if allequal(left_indices) || (!isnothing(max_n_attempts) && n_attempts >= max_n_attempts)
             break
         end
     end
