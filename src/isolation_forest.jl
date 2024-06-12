@@ -5,37 +5,66 @@ using Random
 
 mutable struct MIFForest
     trees::Vector{ModalIsolationForests.MIFTree}
+    sample_size::Int
 end
 
-function build_mif_forest(X::PropositionalLogiset, num_trees::Int, max_height::Int, sample_size::Int)::MIFForest
-    trees = [ModalIsolationForests.MIFTree(build_mif_tree(slicedataset(X, rand(1:ninstances(X), sample_size)), max_height)) for _ in 1:num_trees]
-    return MIFForest(trees)
+function build_isolation_forest(
+    X::PropositionalLogiset;
+    n_trees::Int,
+    partial_sampling::Union{Int,Float64},
+    rng::AbstractRNG = Random.GLOBAL_RNG,
+    tree_kwargs...,
+)::MIFForest
+    sample_size = partial_sampling isa Int ? partial_sampling : floor(Int, ninstances(X) * partial_sampling)
+    trees = [begin
+        subX = slicedataset(X, rand(rng, 1:ninstances(X), sample_size))
+            ModalIsolationForests.MIFTree(build_isolation_tree(subX; rng = rng, tree_kwargs...))
+    end for _ in 1:n_trees]
+    return MIFForest(trees, sample_size)
 end
 
-function detect_mif_anomalies(forest::MIFForest, X::PropositionalLogiset, sample_size::Int)::Vector{Float64}
-    c_n = calculate_c(sample_size)  # Calculate c(sample_size) once for the dataset
+function detect_anomalies(forest::MIFForest, X::PropositionalLogiset)::Vector{Float64}
+    c_n = calculate_c(forest.sample_size)  # Calculate c(sample_size) once for the dataset
     scores = [begin
-        avg_path_length = mean([path_length(tree.root, inst) for tree in forest.trees])
+        avg_path_length = mean([pathlength(tree.root, inst) for tree in forest.trees])
         2^(-avg_path_length / c_n)  # Calculate the anomaly score
     end for inst in eachinstance(X)]
     return scores
 end
 
-function path_length(node::ModalIsolationForests.MIFNode, point::AbstractInterpretation, current_length::Int = 0)::Float64
-if node.left == nothing || node.right == nothing
+function pathlength(node::ModalIsolationForests.MIFNode, inst::AbstractInterpretation, current_length::Int = 0)::Float64
+    if node.left == nothing || node.right == nothing
         return current_length + calculate_c(node.size)  # Correctly use the sample size at the node
     end
-    if SoleLogics.check(node.split_formula, point)
-        return path_length(node.left, point, current_length + 1)
+    if SoleLogics.check(node.split_formula, inst)
+        return pathlength(node.left, inst, current_length + 1)
     else
-        return path_length(node.right, point, current_length + 1)
+        return pathlength(node.right, inst, current_length + 1)
     end
 end
 
-function build_mif_forest(X::Matrix{Float64}, args...; kwargs...)
-    build_mif_forest(PropositionalLogiset(Tables.table(X)), args...; kwargs...)
+function build_isolation_tree(X, args...; kwargs...)::MIFNode
+    if X isa AbstractMatrix
+        X = Tables.table(X)
+    end
+    @assert Tables.istable(X) "Expected table (see Tables), but $(typeof(X)) " *
+        "was provided."
+    return build_isolation_tree(PropositionalLogiset(X), args...; kwargs...)
+end
+function build_isolation_forest(X, args...; kwargs...)
+    if X isa AbstractMatrix
+        X = Tables.table(X)
+    end
+    @assert Tables.istable(X) "Expected table (see Tables), but $(typeof(X)) " *
+        "was provided."
+    build_isolation_forest(PropositionalLogiset(X), args...; kwargs...)
 end
 
-function detect_mif_anomalies(forest::MIFForest, X::Matrix{Float64}, args...; kwargs...)
-    detect_mif_anomalies(forest, PropositionalLogiset(Tables.table(X)), args...; kwargs...)
+function detect_anomalies(forest::MIFForest, X, args...; kwargs...)
+    if X isa AbstractMatrix
+        X = Tables.table(X)
+    end
+    @assert Tables.istable(X) "Expected table (see Tables), but $(typeof(X)) " *
+                        "was provided."
+    detect_anomalies(forest, PropositionalLogiset(X), args...; kwargs...)
 end

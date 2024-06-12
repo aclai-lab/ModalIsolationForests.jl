@@ -16,11 +16,11 @@ export calculate_c
 # Import functionalities
 include("core.jl")
 
-export MIFNode, MIFTree, build_mif_tree
+export MIFNode, MIFTree, build_isolation_tree
 
 include("isolation_tree.jl")
 
-export MIFForest, build_mif_forest, detect_mif_anomalies, path_length
+export MIFForest, build_isolation_forest, detect_anomalies, calculate_auc
 
 include("isolation_forest.jl")
 
